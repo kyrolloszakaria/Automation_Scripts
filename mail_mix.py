@@ -134,6 +134,7 @@ def send_email():
     #receiver_email = ["kero678.kk@gmail.com","Amira.kamal@aucegypt.edu"]
     #receiver_email = "kero678.kk@gmail.com"
     receiver_email = "Amira.kamal@aucegypt.edu"
+    tutors_email_mock = ["kero678.kk@gmail.com","norhan_soliman@aucegypt.edu"]
     password = "Fu{k@uc681"
     
         
@@ -147,7 +148,7 @@ def send_email():
     message =  MIMEMultipart()
     message['Subject'] = "Assigned Rooms for Today's Tutoring Sessions"
     message['From'] = sender_email
-    message['To'] = receiver_email
+    message['To'] = ", ".join(tutors_email_mock)
 
     html = MIMEText(html, 'html')
     message.attach(html)
@@ -155,7 +156,7 @@ def send_email():
     server = smtplib.SMTP("smtp.gmail.com", 587)
     server.starttls()
     server.login(sender_email, password)
-    server.sendmail(sender_email, receiver_email, message.as_string())
+    server.sendmail(sender_email, tutors_email_mock, message.as_string())
 
     server.quit()
 
