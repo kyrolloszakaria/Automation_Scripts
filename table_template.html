@@ -5,7 +5,7 @@
     <p>Kindly note the following schedule displays today's sessions with the assigned rooms for each tutoring session. Please check the room assigned to you.</p>
     <p>If you do not find a room assigned to you, it means you need to look for a quiet spot on campus. You can also try and reserve a library study room on your own.</p>
     <p>If you have any further questions, please let me know.</p>
-    <table border="1">
+    <table border="1" style="padding: 10px;">
       <tr>
         <th>Peer Tutor</th>
         <th>Tutee</th>
@@ -19,7 +19,7 @@
         <td>{{ appointment.tutee }}</td>
         <td>{{ appointment.date }}</td>
         <td>{{ appointment.time }}</td>
-        <td>{{ appointment.room }}</td>
+        <td>{{ appointment.Room }}</td>
       </tr>
       {% endfor %}
     </table>

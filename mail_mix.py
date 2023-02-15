@@ -7,6 +7,9 @@ from jinja2 import Environment, PackageLoader, select_autoescape, FileSystemLoad
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 
+#jinja2 library generate the HTML code dynamically using HTML Templates while
+# email.mime takes the generated HTML code and render it.
+
 def extract_data():
     tutor_names = []
     time = []
@@ -33,8 +36,8 @@ def extract_data():
                 tutees.append(row["Tutee Name"])
                 dates.append(row["Session Date"])
             #else:
-                print(row["Session Date"])
-                print(today_str)
+                #print(row["Session Date"])
+                #print(today_str)
                 continue
     return tutor_names,time,tutor_email,tutees,dates
 
@@ -83,7 +86,9 @@ def assign_room(tutor_obj):
     while room_arrays[i][start_index] == 1 or room_arrays[i][end_index] == 1:
         i+=1
         if(i == 6):
-            conflicts.append({'name' : tutor_obj['name'] , 'time' : TIME})
+            #conflicts.append({'name' : tutor_obj['name'] , 'time' : TIME})
+            app = {'tutor': tutor_obj['name'] , 'Room': "" , 'time': TIME,'date': tutor_obj['date'] , 'tutee': tutor_obj['Tutee']}
+            Appointments.append(app)
             break
     if i < 6:
         for j in range(start_index,end_index):
