@@ -131,7 +131,9 @@ def send_email():
     global Appointments
     # Define email credentials and recipient
     sender_email = "kyrolloszakaria@aucegypt.edu"
-    receiver_email = "kero678.kk@gmail.com"
+    #receiver_email = ["kero678.kk@gmail.com","Amira.kamal@aucegypt.edu"]
+    #receiver_email = "kero678.kk@gmail.com"
+    receiver_email = "Amira.kamal@aucegypt.edu"
     password = "Fu{k@uc681"
     
         
@@ -153,11 +155,6 @@ def send_email():
     server = smtplib.SMTP("smtp.gmail.com", 587)
     server.starttls()
     server.login(sender_email, password)
-    
-    # Send the email
-    #email_text = f"Subject: {subject}\n\n{message}"
-    #email_text = f"""From: {sender_email}\nTo: {receiver_email}\nSubject: {subject}\n{html}"""
-    #server.sendmail(sender_email, receiver_email, email_text)
     server.sendmail(sender_email, receiver_email, message.as_string())
 
     server.quit()
