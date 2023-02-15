@@ -6,6 +6,7 @@ from datetime import datetime,date,timedelta
 from jinja2 import Environment, PackageLoader, select_autoescape, FileSystemLoader
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
+import private
 
 #jinja2 library generate the HTML code dynamically using HTML Templates while
 # email.mime takes the generated HTML code and render it.
@@ -38,8 +39,8 @@ def extract_data():
                 tutees.append(row["Tutee Name"])
                 dates.append(row["Session Date"])
             else:
-                print(row["Session Date"])
-                print(today_str)
+                #print(row["Session Date"])
+                #print(today_str)
                 continue
     return tutor_names,time,tutor_email,tutees,dates
 
@@ -81,10 +82,13 @@ def assign_room(tutor_obj):
     end_index = int(end_index)
     # i is room index
     i = 0
+    minutes = '{:02d}'.format(int((start_index % 4)*15))
     if start_index/4 < 12:
-        TIME = f"{int(start_index/4)} : {(start_index % 4)*15} AM"
+        hours = '{:02d}'.format(int(start_index/4))
+        TIME = f"{hours}:{minutes} AM"
     else:
-        TIME = f"{int((start_index/4)-12)} : {(start_index % 4)*15} PM"
+        hours = '{:02d}'.format(int((start_index/4)-12))
+        TIME = f"{hours}:{minutes} PM"
     while room_arrays[i][start_index] == 1 or room_arrays[i][end_index] == 1:
         i+=1
         if(i == 6):
@@ -130,12 +134,12 @@ while tutors_schedule:
 def send_email():
     global Appointments
     # Define email credentials and recipient
-    sender_email = "kyrolloszakaria@aucegypt.edu"
+    sender_email = private.email
     #receiver_email = ["kero678.kk@gmail.com","Amira.kamal@aucegypt.edu"]
-    #receiver_email = "kero678.kk@gmail.com"
-    receiver_email = "Amira.kamal@aucegypt.edu"
-    tutors_email_mock = ["kero678.kk@gmail.com","norhan_soliman@aucegypt.edu"]
-    password = "Fu{k@uc681"
+    receiver_email = "kero678.kk@gmail.com"
+    #receiver_email = "Amira.kamal@aucegypt.edu"
+    #tutors_email_mock = ["kero678.kk@gmail.com","norhan_soliman@aucegypt.edu"]
+    password = private.password
     
         
     # Set up Jinja2 environment and load HTML template
@@ -148,7 +152,8 @@ def send_email():
     message =  MIMEMultipart()
     message['Subject'] = "Assigned Rooms for Today's Tutoring Sessions"
     message['From'] = sender_email
-    message['To'] = ", ".join(tutors_email_mock)
+    #message['To'] = ", ".join(tutors_email_mock)
+    message['To'] = receiver_email
 
     html = MIMEText(html, 'html')
     message.attach(html)
@@ -156,8 +161,8 @@ def send_email():
     server = smtplib.SMTP("smtp.gmail.com", 587)
     server.starttls()
     server.login(sender_email, password)
-    server.sendmail(sender_email, tutors_email_mock, message.as_string())
-
+    #server.sendmail(sender_email, tutors_email_mock, message.as_string())
+    server.sendmail(sender_email, receiver_email, message.as_string())
     server.quit()
 
 
