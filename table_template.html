@@ -1,0 +1,29 @@
+<html>
+  <body>
+    <p>Dear tutors,</p>
+    <p>I hope you're doing great.</p>
+    <p>Kindly note the following schedule displays today's sessions with the assigned rooms for each tutoring session. Please check the room assigned to you.</p>
+    <p>If you do not find a room assigned to you, it means you need to look for a quiet spot on campus. You can also try and reserve a library study room on your own.</p>
+    <p>If you have any further questions, please let me know.</p>
+    <table border="1">
+      <tr>
+        <th>Peer Tutor</th>
+        <th>Tutee</th>
+        <th>Appointment Date</th>
+        <th>Appointment Time</th>
+        <th>Room</th>
+      </tr>
+      {% for appointment in appointments %}
+      <tr>
+        <td>{{ appointment.tutor }}</td>
+        <td>{{ appointment.tutee }}</td>
+        <td>{{ appointment.date }}</td>
+        <td>{{ appointment.time }}</td>
+        <td>{{ appointment.room }}</td>
+      </tr>
+      {% endfor %}
+    </table>
+    <p>Best regards,
+    Amira Rashad<br>--<br>Amira Rashad, MA TESOL<br>Officer, Student Learning Experiences<br>AUC Peer Tutoring Center</p>
+  </body>
+</html>
