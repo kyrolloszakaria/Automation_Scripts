@@ -16,17 +16,19 @@ def extract_data():
     tutor_email = []
     tutees = []
     dates = []
-    with open("C:\\Users\\kero6\Desktop\\tutor_schedule.csv", "r") as f:
+    with open("C:\\Users\\kero6\Desktop\\admin_download_meetings_detailed_AUC Peer Tutoring Center__21510505.csv", "r") as f:
         reader = csv.DictReader(f)
         columns = ["Tutor First Name", "Tutor Last Name", "Session Time", "Tutor Email", "Tutee Name", "Session Date"]
         today = date.today()
         #%d for the day of the month, %b for the abbreviated month name, and %y for the year as two digits.
         #%-d for the day of the month without the leading zero.
         today_str = today.strftime("%#d-%b-%y")
+        today_str_space = today.strftime("%#d %b %y")
         tomorrow = (date.today() + timedelta(1))
         tomorrow_str = tomorrow.strftime("%d-%b-%y")
+        tomorrow_str_space = tomorrow.strftime("%d %b %y")
         for row in reader:
-            #if row["Session Date"] == today_str or row["Session Date"] == tomorrow_str:
+            if row["Session Date"] == today_str or row["Session Date"] == today_str_space or row["Session Date"] == tomorrow_str or row["Session Date"] == tomorrow_str_space:
                 first_name = row["Tutor First Name"] if "Tutor First Name" in row else "N/A"
                 last_name = row["Tutor Last Name"] if "Tutor Last Name" in row else "N/A"
                 tutor_names.append(f"{first_name} {last_name}")
@@ -35,9 +37,9 @@ def extract_data():
                 tutor_email.append(row["Tutor Email"])
                 tutees.append(row["Tutee Name"])
                 dates.append(row["Session Date"])
-            #else:
-                #print(row["Session Date"])
-                #print(today_str)
+            else:
+                print(row["Session Date"])
+                print(today_str)
                 continue
     return tutor_names,time,tutor_email,tutees,dates
 
