@@ -1,0 +1,27 @@
+<html>
+  <body>
+    <p>To whom it may concern,</p>
+    <p>I hope this email finds you well. Kindly note that the following are the tutoring sessions booked for today:</p>
+    <table border="1" style="padding: 10px;">
+      <tr>
+        <th>Peer Tutor</th>
+        <th>Tutee</th>
+        <th>Appointment Date</th>
+        <th>Appointment Time</th>
+        <th>Room</th>
+      </tr>
+      {% for appointment in appointments %}
+      <tr>
+        <td>{{ appointment.tutor }}</td>
+        <td>{{ appointment.tutee }}</td>
+        <td>{{ appointment.date }}</td>
+        <td>{{ appointment.time }}</td>
+        <td>{{ appointment.Room }}</td>
+      </tr>
+      {% endfor %}
+    </table>
+    <p>Best regards,
+    Amira Rashad<br>--<br>Amira Rashad, MA TESOL<br>Officer, Student Learning Experiences<br>AUC Peer Tutoring Center</p>
+    <img src="https://lh3.google.com/u/0/d/1BiXDoQChXJ8qUAOpeZd1M80LkCvejHZB=w1366-h649-iv1" alt="Office of Assistant Provost" width="250" height="100">
+  </body>
+</html>

@@ -11,6 +11,7 @@ import html
 
 #jinja2 library generate the HTML code dynamically using HTML Templates while
 # email.mime takes the generated HTML code and render it.
+Check = True
 
 def extract_data():
     tutor_names = []
@@ -18,7 +19,7 @@ def extract_data():
     tutor_email = []
     tutees = []
     dates = []
-    with open("C:\\Users\\kero6\Desktop\\admin_download_meetings_detailed_AUC Peer Tutoring Center__21510505.csv", "r") as f:
+    with open("C:\\Users\\kero6\Desktop\\daily report.csv", "r") as f:
         reader = csv.DictReader(f)
         columns = ["Tutor First Name", "Tutor Last Name", "Session Time", "Tutor Email", "Tutee Name", "Session Date"]
         today = date.today()
@@ -30,7 +31,7 @@ def extract_data():
         tomorrow_str = tomorrow.strftime("%d-%b-%y")
         tomorrow_str_space = tomorrow.strftime("%d %b %y")
         for row in reader:
-            if row["Session Date"] == today_str or row["Session Date"] == today_str_space or row["Session Date"] == tomorrow_str or row["Session Date"] == tomorrow_str_space:
+            if row["Session Date"] == today_str or row["Session Date"] == today_str_space:
                 first_name = row["Tutor First Name"] if "Tutor First Name" in row else "N/A"
                 last_name = row["Tutor Last Name"] if "Tutor Last Name" in row else "N/A"
                 tutor_names.append(f"{first_name} {last_name}")
@@ -94,16 +95,18 @@ def assign_room(tutor_obj):
         i+=1
         if(i == 6):
             #conflicts.append({'name' : tutor_obj['name'] , 'time' : TIME})
-            app = {'tutor': tutor_obj['name'] , 'Room': "" , 'time': TIME,'date': tutor_obj['date'] , 'tutee': tutor_obj['Tutee']}
+            app = {'tutor': tutor_obj['name'] , 'Room': "" , 'time': TIME, 'start index': start_index ,'date': tutor_obj['date'] , 'tutee': tutor_obj['Tutee']}
             Appointments.append(app)
             break
     if i < 6:
         for j in range(start_index,end_index):
             room_arrays[i][j] = 1
-        app = {'tutor': tutor_obj['name'] , 'Room': rooms[i] , 'time': TIME,'date': tutor_obj['date'] , 'tutee': tutor_obj['Tutee']}
+        app = {'tutor': tutor_obj['name'] , 'Room': rooms[i] , 'time': TIME, 'start index': start_index ,'date': tutor_obj['date'] , 'tutee': tutor_obj['Tutee']}
         Appointments.append(app)
         #print(app)
         
+def sort_Appointments():
+    Appointments.sort(key=lambda item:item['start index'], reverse=False)
 
 def pick_tutors():
     for tutor in tutors_schedule:
@@ -128,14 +131,28 @@ while tutors_schedule:
 #print_Appointments()
 
 
-def check(html_content):
-    with open("my_file.html", "w") as file:
-        file.write(html_content)
+def check(html_content , to):
+    if(to == 'lib'):
+        with open("mail to library.html", "w") as file:
+            file.write(html_content)
+    else:
+        with open("mail to tutors.html", "w") as file:
+                file.write(html_content)  
 
-  
-Check = True
-def send_email(Check):
+def make_table(to):
+    # Set up Jinja2 environment and load HTML template
+    env = Environment(loader=FileSystemLoader('.'))
+    if(to == 'lib'):
+        template = env.get_template('table_template_lib.html')
+    else:
+        template = env.get_template('table_template.html')
+    # Render HTML template with appointment data
+    html = template.render(appointments=Appointments)  
+    return html
+
+def send_email_tutors(Check):
     global Appointments
+    sort_Appointments()
     # Define email credentials and recipient
     sender_email = private.email
     #receiver_email = ["kero678.kk@gmail.com","Amira.kamal@aucegypt.edu"]
@@ -143,16 +160,9 @@ def send_email(Check):
     #receiver_email = "Amira.kamal@aucegypt.edu"
     #tutors_email_mock = ["kero678.kk@gmail.com","norhan_soliman@aucegypt.edu"]
     password = private.password
-    
-        
-    # Set up Jinja2 environment and load HTML template
-    env = Environment(loader=FileSystemLoader('.'))
-    template = env.get_template('table_template.html')
-
-    # Render HTML template with appointment data
-    html = template.render(appointments=Appointments)
+    html = make_table('tutors')
     if Check:
-        check(html)
+        check(html,'tutors')
         return
     message =  MIMEMultipart()
     message['Subject'] = "Assigned Rooms for Today's Tutoring Sessions"
@@ -171,8 +181,35 @@ def send_email(Check):
     server.sendmail(sender_email, receiver_email, message.as_string())
     server.quit()
 
+def send_email_lib(Check):
+    sender_email = private.email
+    password = private.password
 
-send_email(Check)
+    #to = "bservices@aucegypt.edu"
+    to = "kero678.kk@gmail.com"
+    #cc = ["dinah@aucegypt.edu",  "fady.michel@aucegypt.edu"]
+    cc = "kero678.kk@gmail.com"
+    Msg = MIMEMultipart()
+    Msg['From'] = sender_email
+    Msg['To'] = to
+    Msg['Subject'] = "Today’s Peer Tutoring Sessions"
+    Msg['Cc'] = cc
+    html_lib = html = make_table('lib')
+    if Check:
+        check(html_lib,'lib')
+        return
+    html_lib = MIMEText(html_lib, 'html')
+    Msg.attach(html_lib)
+    # Set up the SMTP server
+    server = smtplib.SMTP("smtp.gmail.com", 587)
+    server.starttls()
+    server.login(sender_email, password)
+    #server.sendmail(sender_email, tutors_email_mock, Msg.as_string())
+    server.sendmail(sender_email, to, Msg.as_string())
+    server.quit()
+
+send_email_tutors(Check)
+send_email_lib(Check)
 
 
 
