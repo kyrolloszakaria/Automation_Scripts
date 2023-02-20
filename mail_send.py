@@ -188,12 +188,12 @@ def send_email_lib(Check):
     #to = "bservices@aucegypt.edu"
     to = "kero678.kk@gmail.com"
     #cc = ["dinah@aucegypt.edu",  "fady.michel@aucegypt.edu"]
-    cc = "kero678.kk@gmail.com"
+    cc = ["kero678.kk@gmail.com" , "Amira.kamal@aucegypt.edu"]
     Msg = MIMEMultipart()
     Msg['From'] = sender_email
     Msg['To'] = to
     Msg['Subject'] = "Today’s Peer Tutoring Sessions"
-    Msg['Cc'] = cc
+    Msg['Cc'] = ", ".join(cc)
     html_lib = html = make_table('lib')
     if Check:
         check(html_lib,'lib')
