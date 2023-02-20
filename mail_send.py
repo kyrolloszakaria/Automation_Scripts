@@ -62,7 +62,7 @@ def convert_time():
         #print(str(hour) + " " + str(minute))
         tmp = hour + (minute / 60)
         time_num.append(tmp)
-    # print(time_num)
+    #print(time_num)
     return time_num
 time_num = convert_time()
 tutors_schedule = [{"name": k, "time": v, "Tutee": z, "date": x} for k, v, z, x in zip(tutors_list, time_num, tutees, dates)]
@@ -85,12 +85,16 @@ def assign_room(tutor_obj):
     # i is room index
     i = 0
     minutes = '{:02d}'.format(int((start_index % 4)*15))
-    if start_index/4 < 12:
+    if start_index == 0:
+        TIME = "12:00 AM"
+    elif start_index/4 < 12:
         hours = '{:02d}'.format(int(start_index/4))
         TIME = f"{hours}:{minutes} AM"
-    else:
+    elif start_index/4 > 12 :
         hours = '{:02d}'.format(int((start_index/4)-12))
         TIME = f"{hours}:{minutes} PM"
+    elif start_index/4 == 12:
+        TIME = "12:00 PM"
     while room_arrays[i][start_index] == 1 or room_arrays[i][end_index] == 1:
         i+=1
         if(i == 6):
