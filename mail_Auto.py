@@ -11,7 +11,8 @@ import html
 
 #jinja2 library generate the HTML code dynamically using HTML Templates while
 # email.mime takes the generated HTML code and render it.
-Check = False
+Check = bool(input("Please type:\n1 if you want to generate mock email.\n0 if you want to send the email directly.\n"))
+#print(Check)
 
 def extract_data():
     tutor_names = []
@@ -46,13 +47,62 @@ def extract_data():
                 continue
     return tutor_names,time,tutor_email,tutees,dates
 
-tutors_list,time,tutors_email,tutees,dates = extract_data()
+tutors_list,time_list,tutors_email,tutees,dates = extract_data()
 # print(tutors_list)
-# print(time)
+# print(time_list)
 # print(tutors_email)
+# print(dates)
+def custom_sessions():
+    global time_list
+    val = input("Please Type:\n 0 to remove a session\n 1 to add a session\n 2 to send\n")
+    while(val != '2'):
+        if val == '1':
+            Tutor_First_name = input("Please enter Tutor First Name: ")
+            Tutor_Second_name = input("Please enter Tutor Second Name: ")
+            Tutee_First_name = input("Please enter Tutee First Name: ")
+            Tutee_Last_name = input("Please enter Tutee Last Name: ")
+            Stime = input("Please enter time as 1:30pm (please use the exact same format) ")
+            Smail = input("Please enter tutor mail ")
+            Sdate = input("Please enter the session date as 1-Feb-23 (please use the exact same format)")
+            # add the session to the lists.
+            tutors_list.append(f"{Tutor_First_name} {Tutor_Second_name}")
+            tutees.append(f"{Tutee_First_name} {Tutee_Last_name}")
+            time_list.append(Stime)
+            dates.append(Sdate)
+            tutors_email.append(Smail)
+        elif val == '0':
+            Tutor_First_name = input("Please enter Tutor First Name: ")
+            Tutor_Second_name = input("Please enter Tutor Second Name: ")
+            Stime = input("Please enter time as 01:30 PM (please use the same format) ")
+            tutor = f"{Tutor_First_name} {Tutor_Second_name}"
+            indices = find_index(tutor)
+            for i in indices:
+                    if(Stime == time_list[i]): #same tutor with same time stamp, must be unique
+                        # remove element with this index from each list
+                        del tutors_list[i]
+                        del time_list[i]
+                        del tutors_email[i]
+                        del tutees[i]
+                        del dates[i]
+        val = input("Please Type:\n 0 to remove a session\n 1 to add a session\n 2 to send\n")
+
+#TODO
+#def generate_date(day,month,year): 
+
+
+def find_index(tutor):
+    indices = []
+    for i in range(len(tutors_list)):
+        if tutors_list[i] == tutor:
+            indices.append(i)
+    return indices
+
+custom_sessions()
+
+
 def convert_time():
     time_num = []
-    for time_string in time:
+    for time_string in time_list:
         # Convert the time string to a datetime object
         time_obj = datetime.strptime(time_string, "%I:%M%p")
         # Extract the hour and minute as integers
