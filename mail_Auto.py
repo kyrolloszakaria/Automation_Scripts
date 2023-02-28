@@ -226,7 +226,7 @@ def make_table(to, Special):
         dbg(1)
         html = template.render(appointments=special_Appointments)  
     else:
-        html = template.render(appointments=Appointments)  
+        html = template.render(appointments=Appointments)
     return html
 
 def send_email_tutors(Check):
@@ -262,6 +262,7 @@ def send_email_tutors(Check):
 def send_email_lib(Check):
     sender_email = private.email
     password = private.password
+    
     #to = "bservices@aucegypt.edu"
     to = "kero678.kk@gmail.com"
     #cc = ["dinah@aucegypt.edu",  "fady.michel@aucegypt.edu"]
@@ -289,7 +290,3 @@ send_email_tutors(Check)
 send_email_lib(Check)
 
 #TODO: enable user to add or remove a session after the HTML file is generated.
-
-
-
-
