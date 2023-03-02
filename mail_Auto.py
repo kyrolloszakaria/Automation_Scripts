@@ -8,11 +8,33 @@ from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 import private
 import html
+import os
+import re
+
 
 #jinja2 library generate the HTML code dynamically using HTML Templates while
 # email.mime takes the generated HTML code and render it.
 #print(Check)
 #Check = True
+
+def rename():
+    ## Delete the old file first:
+    # file path
+    file_path = "C:\\Users\\kero6\Desktop\\daily report.csv"
+    # delete file
+    os.remove(file_path)
+    ## rename the new one:
+    # directory containing the files
+    dir_path = "C:\\Users\\kero6\\Desktop"
+    # the first part of the name
+    name_prefix  = 'admin_download_meetings_detailed_AUC Peer Tutoring'
+    new_name = 'daily report.csv'
+    for file_name in os.listdir(dir_path):
+        # check if file name starts with the given prefix
+        if file_name.startswith(name_prefix):
+            # rename file
+            os.rename(os.path.join(dir_path, file_name), os.path.join(dir_path, new_name))
+
 def dbg(i):
     print(f"here {i}")
 def extract_data():
@@ -47,7 +69,7 @@ def extract_data():
                 #print(today_str)
                 continue
     return tutor_names,time,tutor_email,tutees,dates
-
+rename()
 tutors_list,time_list,tutors_email,tutees,dates = extract_data()
 # print(tutors_list)
 # print(time_list)
@@ -57,22 +79,20 @@ special_Appointments = []
 Special = False
 def custom_sessions():
     global time_list, Special
-    val = input("Please Type:\n 0 to remove a session form the list\n 1 to add a session to the list\n 2 to to add a session(s) to be sent in separate mail\n 3 to proceed\n")
+    val = input("Please Type:\n 1 to add a session to the list\n 2 to to add a session(s) to be sent in separate mail\n 3 to proceed\n")
     while(val != '3'):
         if val == '1' or val == '2':
             #dbg(0)
-            Tutor_First_name = input("Please enter Tutor First Name: ")
-            Tutor_Second_name = input("Please enter Tutor Second Name: ")
-            Tutee_First_name = input("Please enter Tutee First Name: ")
-            Tutee_Last_name = input("Please enter Tutee Last Name: ")
+            Tutor_name = input("Please enter Tutor Name: ")
+            Tutee_name = input("Please enter Tutee Name: ")
             Smail = input("Please enter tutor mail: ")
             Sdate = date.today().strftime("%#d %b %y")
             if val == '1':
                 # add the session to the lists.
                 #dbg(1)
                 Stime = input("Please enter time as 1:30pm (please use the exact same format): ")
-                tutors_list.append(f"{Tutor_First_name} {Tutor_Second_name}")
-                tutees.append(f"{Tutee_First_name} {Tutee_Last_name}")
+                tutors_list.append(Tutor_name)
+                tutees.append(Tutee_name)
                 time_list.append(Stime)
                 dates.append(Sdate)
                 tutors_email.append(Smail)
@@ -81,24 +101,9 @@ def custom_sessions():
                 Special = True
                 Stime = input("Please enter time as 01:30 PM: ")
                 Sroom = input("Please enter the room: ")
-                app = {'tutor': f"{Tutor_First_name} {Tutor_Second_name}" , 'Room': Sroom , 'time': Stime, 'start index': 0 ,'date': Sdate , 'tutee': f"{Tutee_First_name} {Tutee_Last_name}"}
+                app = {'tutor': Tutor_name , 'Room': Sroom , 'time': Stime, 'start index': 0 ,'date': Sdate , 'tutee': Tutee_name}
                 special_Appointments.append(app)
-        elif val == '0':
-            #dbg("remove")
-            Tutor_First_name = input("Please enter Tutor First Name: ")
-            Tutor_Second_name = input("Please enter Tutor Second Name: ")
-            Stime = input("Please enter time as 01:30 PM (please use the same format): ")
-            tutor = f"{Tutor_First_name} {Tutor_Second_name}"
-            indices = find_index(tutor)
-            for i in indices:
-                    if(Stime == time_list[i]): #same tutor with same time stamp, must be unique
-                        # remove element with this index from each list
-                        del tutors_list[i]
-                        del time_list[i]
-                        del tutors_email[i]
-                        del tutees[i]
-                        del dates[i]
-        val = input("Please Type:\n 0 to remove a session from the list\n 1 to add a session to the list\n 2 to to add a session(s) to be sent in separate mail\n 3 to proceed\n")
+        val = input("Please Type:\n 1 to add a session to the list\n 2 to to add a session(s) to be sent in separate mail\n 3 to proceed\n")
 
 #TODO
 #def generate_date(day,month,year): 
@@ -122,7 +127,18 @@ def Check_decision():
     else:
         Check = False
 
-Check_decision()
+
+def remove_sessions():
+    val = input("Please Type:\n 0 to remove a session form the list\n 1 to proceed\n")
+    while(val != '1'):
+            print_Appointments(Appointments)
+            i = input("Please Type the number of session you want to delete or type x to cancel\n")
+            i = i.lower()
+            if i != 'x':
+                i = int(i)
+                i= i-1
+                del Appointments[i]
+            val = input("Please Type:\n 0 to remove a session form the list\n 1 to proceed\n")
 
 
 
@@ -208,8 +224,8 @@ def print_Appointments(Appointments):
     print("Appointments: ")
     i = 1
     for app in Appointments:
-        
-        print(f"{i} : {app}")
+        print(f"{i}- tutor: {app['tutor']}, tutee: {app['tutee']}, time: {app['time']}")
+        i = i+1
 
 while tutors_schedule:
     pick_tutors()
@@ -239,10 +255,13 @@ def make_table(to, Special):
         html = template.render(appointments=Appointments)
     return html
 
+sort_Appointments()
+remove_sessions()
+Check_decision()
+
 def send_email_tutors(Check):
     global Appointments, special_Appointments
     global Special
-    sort_Appointments()
     # Define email credentials and recipient
     
     sender_email = private.email
