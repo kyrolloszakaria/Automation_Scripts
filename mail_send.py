@@ -11,10 +11,8 @@ import html
 
 #jinja2 library generate the HTML code dynamically using HTML Templates while
 # email.mime takes the generated HTML code and render it.
-#print(Check)
-#Check = True
-def dbg(i):
-    print(f"here {i}")
+Check = False
+
 def extract_data():
     tutor_names = []
     time = []
@@ -48,87 +46,13 @@ def extract_data():
                 continue
     return tutor_names,time,tutor_email,tutees,dates
 
-tutors_list,time_list,tutors_email,tutees,dates = extract_data()
+tutors_list,time,tutors_email,tutees,dates = extract_data()
 # print(tutors_list)
-# print(time_list)
+# print(time)
 # print(tutors_email)
-# print(dates)
-special_Appointments = []
-Special = False
-def custom_sessions():
-    global time_list, Special
-    val = input("Please Type:\n 0 to remove a session form the list\n 1 to add a session to the list\n 2 to to add a session(s) to be sent in separate mail\n 3 to proceed\n")
-    while(val != '3'):
-        if val == '1' or val == '2':
-            #dbg(0)
-            Tutor_First_name = input("Please enter Tutor First Name: ")
-            Tutor_Second_name = input("Please enter Tutor Second Name: ")
-            Tutee_First_name = input("Please enter Tutee First Name: ")
-            Tutee_Last_name = input("Please enter Tutee Last Name: ")
-            Smail = input("Please enter tutor mail: ")
-            Sdate = date.today().strftime("%#d %b %y")
-            if val == '1':
-                # add the session to the lists.
-                #dbg(1)
-                Stime = input("Please enter time as 1:30pm (please use the exact same format): ")
-                tutors_list.append(f"{Tutor_First_name} {Tutor_Second_name}")
-                tutees.append(f"{Tutee_First_name} {Tutee_Last_name}")
-                time_list.append(Stime)
-                dates.append(Sdate)
-                tutors_email.append(Smail)
-            elif val == '2':
-                #dbg(2)
-                Special = True
-                Stime = input("Please enter time as 01:30 PM: ")
-                Sroom = input("Please enter the room: ")
-                app = {'tutor': f"{Tutor_First_name} {Tutor_Second_name}" , 'Room': Sroom , 'time': Stime, 'start index': 0 ,'date': Sdate , 'tutee': f"{Tutee_First_name} {Tutee_Last_name}"}
-                special_Appointments.append(app)
-        elif val == '0':
-            #dbg("remove")
-            Tutor_First_name = input("Please enter Tutor First Name: ")
-            Tutor_Second_name = input("Please enter Tutor Second Name: ")
-            Stime = input("Please enter time as 01:30 PM (please use the same format): ")
-            tutor = f"{Tutor_First_name} {Tutor_Second_name}"
-            indices = find_index(tutor)
-            for i in indices:
-                    if(Stime == time_list[i]): #same tutor with same time stamp, must be unique
-                        # remove element with this index from each list
-                        del tutors_list[i]
-                        del time_list[i]
-                        del tutors_email[i]
-                        del tutees[i]
-                        del dates[i]
-        val = input("Please Type:\n 0 to remove a session from the list\n 1 to add a session to the list\n 2 to to add a session(s) to be sent in separate mail\n 3 to proceed\n")
-
-#TODO
-#def generate_date(day,month,year): 
-
-
-def find_index(tutor): #called inside
-    indices = []
-    for i in range(len(tutors_list)):
-        if tutors_list[i] == tutor:
-            indices.append(i)
-    return indices
-
-custom_sessions()
-#print(special_Appointments)
-Check = True
-def Check_decision():
-    global Check
-    Check_txt = input("Please type:\n 1 if you want to generate mock email.\n 0 if you want to proceed the email directly.\n")
-    if Check_txt == '1':
-        Check = True
-    else:
-        Check = False
-
-Check_decision()
-
-
-
 def convert_time():
     time_num = []
-    for time_string in time_list:
+    for time_string in time:
         # Convert the time string to a datetime object
         time_obj = datetime.strptime(time_string, "%I:%M%p")
         # Extract the hour and minute as integers
@@ -138,15 +62,10 @@ def convert_time():
         #print(str(hour) + " " + str(minute))
         tmp = hour + (minute / 60)
         time_num.append(tmp)
-    #print(time_num)
+    # print(time_num)
     return time_num
-
-def making_schedule(): #using the direct lists
-    time_num = convert_time()
-    tutors_schedule = [{"name": k, "time": v, "Tutee": z, "date": x} for k, v, z, x in zip(tutors_list, time_num, tutees, dates)]
-    return tutors_schedule
-
-tutors_schedule = making_schedule()
+time_num = convert_time()
+tutors_schedule = [{"name": k, "time": v, "Tutee": z, "date": x} for k, v, z, x in zip(tutors_list, time_num, tutees, dates)]
 #print(tutors_schedule)
 conflicts = []
 Appointments = []
@@ -166,16 +85,12 @@ def assign_room(tutor_obj):
     # i is room index
     i = 0
     minutes = '{:02d}'.format(int((start_index % 4)*15))
-    if start_index == 0:
-        TIME = "12:00 AM"
-    elif start_index/4 < 12:
+    if start_index/4 < 12:
         hours = '{:02d}'.format(int(start_index/4))
         TIME = f"{hours}:{minutes} AM"
-    elif start_index/4 > 12 :
+    else:
         hours = '{:02d}'.format(int((start_index/4)-12))
         TIME = f"{hours}:{minutes} PM"
-    elif start_index/4 == 12:
-        TIME = "12:00 PM"
     while room_arrays[i][start_index] == 1 or room_arrays[i][end_index] == 1:
         i+=1
         if(i == 6):
@@ -204,13 +119,13 @@ def pick_tutors():
                 tutors_schedule.remove(Tutor)
 
 
-def print_Appointments(Appointments):
+def print_Appointments():
     print("Appointments: ")
-    i = 1
     for app in Appointments:
-        
-        print(f"{i} : {app}")
-
+        print(app)
+    print("Conflicts: ")
+    for conflict in conflicts:
+        print(conflict)
 while tutors_schedule:
     pick_tutors()
 #print_Appointments()
@@ -224,7 +139,7 @@ def check(html_content , to):
         with open("mail to tutors.html", "w") as file:
                 file.write(html_content)  
 
-def make_table(to, Special):
+def make_table(to):
     # Set up Jinja2 environment and load HTML template
     env = Environment(loader=FileSystemLoader('.'))
     if(to == 'lib'):
@@ -232,25 +147,21 @@ def make_table(to, Special):
     else:
         template = env.get_template('table_template.html')
     # Render HTML template with appointment data
-    if Special:
-        #dbg(1)
-        html = template.render(appointments=special_Appointments)  
-    else:
-        html = template.render(appointments=Appointments)
+    html = template.render(appointments=Appointments)  
     return html
 
 def send_email_tutors(Check):
-    global Appointments, special_Appointments
-    global Special
+    global Appointments
     sort_Appointments()
     # Define email credentials and recipient
-    
     sender_email = private.email
-    #receiver_email = "Amira.kamal@aucegypt.edu"
-    tutors_email_mock = ["kero678.kk@gmail.com","norhan_soliman@aucegypt.edu"]
+    #receiver_email = ["kero678.kk@gmail.com","Amira.kamal@aucegypt.edu"]
     to = "kero678.kk@gmail.com"
+    #to = "nm.hashem@aucegypt.edu"
+    #receiver_email = "Amira.kamal@aucegypt.edu"
+    #tutors_email_mock = ["kero678.kk@gmail.com","norhan_soliman@aucegypt.edu"]
     password = private.password
-    html = make_table('tutors', Special)
+    html = make_table('tutors')
     if Check:
         check(html,'tutors')
         return
@@ -259,31 +170,33 @@ def send_email_tutors(Check):
     message['From'] = sender_email
     #message['To'] = ", ".join(tutors_email_mock)
     message['To'] = to
+
     html = MIMEText(html, 'html')
+    
     message.attach(html)
     # Set up the SMTP server
     server = smtplib.SMTP("smtp.gmail.com", 587)
     server.starttls()
     server.login(sender_email, password)
-    server.sendmail(sender_email, to, message.as_string())
     #server.sendmail(sender_email, tutors_email_mock, message.as_string())
+    server.sendmail(sender_email, to, message.as_string())
     server.quit()
 
 def send_email_lib(Check):
     sender_email = private.email
     password = private.password
-    
+
     #to = "bservices@aucegypt.edu"
-    to = "kero678.kk@gmail.com"
-    #to = "nm.hashem@aucegypt.edu"
+    #to = "kero678.kk@gmail.com"
+    to = "nm.hashem@aucegypt.edu"
     #cc = ["dinah@aucegypt.edu",  "fady.michel@aucegypt.edu"]
-    cc = ["kero678.kk@gmail.com" , "kero678.kk@gmail.com"]
+    cc = ["kero678.kk@gmail.com" , "Amira.kamal@aucegypt.edu"]
     Msg = MIMEMultipart()
     Msg['From'] = sender_email
     Msg['To'] = to
     Msg['Subject'] = "Today’s Peer Tutoring Sessions"
     Msg['Cc'] = ", ".join(cc)
-    html_lib = make_table('lib', Special)
+    html_lib = html = make_table('lib')
     if Check:
         check(html_lib,'lib')
         return
@@ -300,5 +213,4 @@ def send_email_lib(Check):
 send_email_tutors(Check)
 send_email_lib(Check)
 
-#TODO: enable user to add or remove a session after the HTML file is generated.
-#TODO: the program stores the added sessions in a text file so that if the user checks the email format he should not reenter the added sessions.
+
