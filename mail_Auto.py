@@ -87,7 +87,7 @@ def extract_data():
             tomorrow_str = tomorrow.strftime("%d-%b-%y")
             tomorrow_str_space = tomorrow.strftime("%d %b %y")
             for row in reader:
-                if row["Session Date"] == today_str or row["Session Date"] == today_str_space:
+                #if row["Session Date"] == today_str or row["Session Date"] == today_str_space:
                     #print(row["Session Date"])
                     #print(today_str_space)
                     first_name = row["Tutor First Name"] if "Tutor First Name" in row else "N/A"
@@ -98,14 +98,14 @@ def extract_data():
                     tutor_email.append(row["Tutor Email"])
                     tutees.append(row["Tutee Name"])
                     dates.append(row["Session Date"])
-                else:
+                #else:
                     # print(row["Session Date"])
                     # print(today_str)
                     continue
     except IOError:
         exit_fileMsg()
     return tutor_names,time,tutor_email,tutees,dates
-reName = input('if you want to auto rename the file, type r. Type any character otherwise.\n')
+reName = input('Please type r if you want to auto rename the file. Type any character otherwise.\n')
 if(reName.lower() == 'r' ):
     rename()
 tutors_list,time_list,tutors_email,tutees,dates = extract_data()
@@ -161,24 +161,38 @@ custom_sessions()
 Check = True
 def Check_decision():
     global Check
-    Check_txt = input("Please type:\n 1 if you want to generate mock email.\n 0 if you want to proceed the email directly.\n")
-    if Check_txt == '1':
-        Check = True
-    else:
-        Check = False
+    while True:
+        Check_txt = input("Please type:\n 1 if you want to generate mock email.\n 0 if you want to proceed the email directly.\n")
+        if Check_txt == '1':
+            Check = True
+            return
+        elif Check_txt == '0':
+            Check = False
+            return
+        
 
 
 def remove_sessions():
-    val = input("Please Type:\n 0 to remove a session form the list\n 1 to proceed\n")
-    while(val != '1'):
-            print_Appointments(Appointments)
-            i = input("Please Type the number of session you want to delete or type x to cancel\n")
-            i = i.lower()
-            if i != 'x':
-                i = int(i)
-                i= i-1
-                del Appointments[i]
-            val = input("Please Type:\n 0 to remove a session form the list\n 1 to proceed\n")
+    while True:
+        val = input("Please type\n 1 to remove a session from the list.\n 0 to proceed.\n")
+        if val == '1':
+            break
+        elif val == '0':
+            return
+    while True:
+        i = input("Please Type the number of session you want to delete or type x to cancel\n")
+        i = i.lower()
+        if i == 'x':
+            break
+        if (int(i) - 1) < len(Appointments):
+            i = int(i)
+            i= i-1
+            del Appointments[i]
+            remove_sessions()
+        elif i == '1':
+            return
+        else:
+            remove_sessions()
 
 
 
