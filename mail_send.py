@@ -11,7 +11,7 @@ import html
 
 #jinja2 library generate the HTML code dynamically using HTML Templates while
 # email.mime takes the generated HTML code and render it.
-Check = False
+Check = True
 
 def extract_data():
     tutor_names = []
@@ -19,7 +19,7 @@ def extract_data():
     tutor_email = []
     tutees = []
     dates = []
-    with open("C:\\Users\\kero6\Desktop\\daily report.csv", "r") as f:
+    with open("C:\\Users\\kero6\Desktop\\daily report big.csv", "r") as f:
         reader = csv.DictReader(f)
         columns = ["Tutor First Name", "Tutor Last Name", "Session Time", "Tutor Email", "Tutee Name", "Session Date"]
         today = date.today()

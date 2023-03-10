@@ -16,24 +16,55 @@ import re
 # email.mime takes the generated HTML code and render it.
 #print(Check)
 #Check = True
+def input_time(val):
+    isCorrect = False
+    while isCorrect == False:
+        try:
+            isCorrect = True
+            if(val == 2):
+                Stime = input("Please enter time as 1:30pm (please use the exact same format): ")
+            else:
+                Stime = input("Please enter time as 1:30pm (please use the exact same format): ")
+            time_obj = datetime.strptime(Stime, "%I:%M%p")
+        except ValueError as ve:
+            isCorrect = False
+            if(val == 2):
+                print(f'WRONG FORMAT.\n')
+            else:
+                print(f'WRONG FORMAT.\n')
+    return Stime
+
+def exit_fileMsg(dir_path):
+    print(f'Please make sure:\n1.to download the report.\n2. that its name starts with \"admin_download_meetings_detailed_AUC Peer Tutoring\"\n3. The report is in the correct path: {dir_path}')
+    input("Please enter any character to close the program\n")
+    exit()
 
 def rename():
     ## Delete the old file first:
     # file path
     file_path = "C:\\Users\\kero6\Desktop\\daily report.csv"
     # delete file
-    os.remove(file_path)
+    try:
+        os.remove(file_path)
+    except IOError:
+        a = 0 #anything
     ## rename the new one:
     # directory containing the files
     dir_path = "C:\\Users\\kero6\\Desktop"
     # the first part of the name
     name_prefix  = 'admin_download_meetings_detailed_AUC Peer Tutoring'
     new_name = 'daily report.csv'
-    for file_name in os.listdir(dir_path):
+    exist = False
+    # list files in directory and sort by modification time
+    files = sorted(os.listdir(dir_path), key=lambda x: os.path.getmtime(os.path.join(dir_path, x)), reverse=True)
+    for file_name in files:
         # check if file name starts with the given prefix
         if file_name.startswith(name_prefix):
             # rename file
+            exist = True
             os.rename(os.path.join(dir_path, file_name), os.path.join(dir_path, new_name))
+    if exist == False:
+        exit_fileMsg(dir_path)
 
 def dbg(i):
     print(f"here {i}")
@@ -43,33 +74,40 @@ def extract_data():
     tutor_email = []
     tutees = []
     dates = []
-    with open("C:\\Users\\kero6\Desktop\\daily report.csv", "r") as f:
-        reader = csv.DictReader(f)
-        columns = ["Tutor First Name", "Tutor Last Name", "Session Time", "Tutor Email", "Tutee Name", "Session Date"]
-        today = date.today()
-        #%d for the day of the month, %b for the abbreviated month name, and %y for the year as two digits.
-        #%-d for the day of the month without the leading zero.
-        today_str = today.strftime("%#d-%b-%y")
-        today_str_space = today.strftime("%#d %b %y")
-        tomorrow = (date.today() + timedelta(1))
-        tomorrow_str = tomorrow.strftime("%d-%b-%y")
-        tomorrow_str_space = tomorrow.strftime("%d %b %y")
-        for row in reader:
-            #if row["Session Date"] == today_str or row["Session Date"] == today_str_space:
-                first_name = row["Tutor First Name"] if "Tutor First Name" in row else "N/A"
-                last_name = row["Tutor Last Name"] if "Tutor Last Name" in row else "N/A"
-                tutor_names.append(f"{first_name} {last_name}")
-                tmp = row["Session Time"].replace(" (GMT+2)", "")
-                time.append(tmp)
-                tutor_email.append(row["Tutor Email"])
-                tutees.append(row["Tutee Name"])
-                dates.append(row["Session Date"])
-            #else:
-                #print(row["Session Date"])
-                #print(today_str)
-                continue
+    try:
+        with open("C:\\Users\\kero6\Desktop\\daily report big.csv", "r", encoding="utf-8") as f:
+            reader = csv.DictReader(f)
+            columns = ["Tutor First Name", "Tutor Last Name", "Session Time", "Tutor Email", "Tutee Name", "Session Date"]
+            today = date.today()
+            #%d for the day of the month, %b for the abbreviated month name, and %y for the year as two digits.
+            #%-d for the day of the month without the leading zero.
+            today_str = today.strftime("%#d-%b-%y")
+            today_str_space = today.strftime("%#d %b %y")
+            tomorrow = (date.today() + timedelta(1))
+            tomorrow_str = tomorrow.strftime("%d-%b-%y")
+            tomorrow_str_space = tomorrow.strftime("%d %b %y")
+            for row in reader:
+                if row["Session Date"] == today_str or row["Session Date"] == today_str_space:
+                    #print(row["Session Date"])
+                    #print(today_str_space)
+                    first_name = row["Tutor First Name"] if "Tutor First Name" in row else "N/A"
+                    last_name = row["Tutor Last Name"] if "Tutor Last Name" in row else "N/A"
+                    tutor_names.append(f"{first_name} {last_name}")
+                    tmp = row["Session Time"].replace(" (GMT+2)", "")
+                    time.append(tmp)
+                    tutor_email.append(row["Tutor Email"])
+                    tutees.append(row["Tutee Name"])
+                    dates.append(row["Session Date"])
+                else:
+                    # print(row["Session Date"])
+                    # print(today_str)
+                    continue
+    except IOError:
+        exit_fileMsg()
     return tutor_names,time,tutor_email,tutees,dates
-rename()
+reName = input('if you want to auto rename the file, type r. Type any character otherwise.\n')
+if(reName.lower() == 'r' ):
+    rename()
 tutors_list,time_list,tutors_email,tutees,dates = extract_data()
 # print(tutors_list)
 # print(time_list)
@@ -90,19 +128,21 @@ def custom_sessions():
             if val == '1':
                 # add the session to the lists.
                 #dbg(1)
-                Stime = input("Please enter time as 1:30pm (please use the exact same format): ")
+                Stime = input_time(val)
                 tutors_list.append(Tutor_name)
                 tutees.append(Tutee_name)
                 time_list.append(Stime)
                 dates.append(Sdate)
                 tutors_email.append(Smail)
+                print(time_list)
             elif val == '2':
-                #dbg(2)
+                # separate email
                 Special = True
-                Stime = input("Please enter time as 01:30 PM: ")
+                Stime = input_time(val)
                 Sroom = input("Please enter the room: ")
                 app = {'tutor': Tutor_name , 'Room': Sroom , 'time': Stime, 'start index': 0 ,'date': Sdate , 'tutee': Tutee_name}
                 special_Appointments.append(app)
+                print(special_Appointments)
         val = input("Please Type:\n 1 to add a session to the list\n 2 to to add a session(s) to be sent in separate mail\n 3 to proceed\n")
 
 #TODO
@@ -167,7 +207,8 @@ tutors_schedule = making_schedule()
 conflicts = []
 Appointments = []
 # 6 arrays each one corresponds to a room. each array is of size 96 which is number of quarter hours in a day.
-room_arrays = [[0] * 96 for i in range(6)]
+# there is 4 slots extra to tolerate sessions from 11:00 pm and after
+room_arrays = [[0] * 100 for i in range(6)]
 
 def assign_room(tutor_obj):
     #print(len(tutors_schedule))
