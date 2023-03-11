@@ -22,9 +22,9 @@ def input_time(val):
         try:
             isCorrect = True
             if(val == 2):
-                Stime = input("Please enter time as 1:30pm (please use the exact same format): ")
+                Stime = input("\nPlease enter time as 1:30pm (please use the exact same format): ")
             else:
-                Stime = input("Please enter time as 1:30pm (please use the exact same format): ")
+                Stime = input("\nPlease enter time as 1:30pm (please use the exact same format): ")
             time_obj = datetime.strptime(Stime, "%I:%M%p")
         except ValueError as ve:
             isCorrect = False
@@ -35,14 +35,16 @@ def input_time(val):
     return Stime
 
 def exit_fileMsg(dir_path):
-    print(f'Please make sure:\n1.to download the report.\n2. that its name starts with \"admin_download_meetings_detailed_AUC Peer Tutoring\"\n3. The report is in the correct path: {dir_path}')
-    input("Please enter any character to close the program\n")
+    print(f'\nPlease make sure:\n1. to download the report.\n2. that its name starts with \"admin_download_meetings_detailed_AUC Peer Tutoring\"\n3. The report is in the correct path: {dir_path}')
+    input("\nPlease enter any character to close the program\n")
     exit()
-
+#dir_path = "C:\\Users\\kero6\\Desktop"
+dir_path = "D:\\mail_automation\\Automation_Scripts"
+new_name = 'daily report.csv'
 def rename():
     ## Delete the old file first:
     # file path
-    file_path = "C:\\Users\\kero6\Desktop\\daily report.csv"
+    file_path = f"{dir_path}\\daily report.csv"
     # delete file
     try:
         os.remove(file_path)
@@ -50,10 +52,10 @@ def rename():
         a = 0 #anything
     ## rename the new one:
     # directory containing the files
-    dir_path = "C:\\Users\\kero6\\Desktop"
+
     # the first part of the name
     name_prefix  = 'admin_download_meetings_detailed_AUC Peer Tutoring'
-    new_name = 'daily report.csv'
+
     exist = False
     # list files in directory and sort by modification time
     files = sorted(os.listdir(dir_path), key=lambda x: os.path.getmtime(os.path.join(dir_path, x)), reverse=True)
@@ -63,6 +65,7 @@ def rename():
             # rename file
             exist = True
             os.rename(os.path.join(dir_path, file_name), os.path.join(dir_path, new_name))
+            return
     if exist == False:
         exit_fileMsg(dir_path)
 
@@ -75,7 +78,7 @@ def extract_data():
     tutees = []
     dates = []
     try:
-        with open("C:\\Users\\kero6\Desktop\\daily report big.csv", "r", encoding="utf-8") as f:
+        with open(f"{dir_path}\\{new_name}", "r", encoding="utf-8") as f:
             reader = csv.DictReader(f)
             columns = ["Tutor First Name", "Tutor Last Name", "Session Time", "Tutor Email", "Tutee Name", "Session Date"]
             today = date.today()
@@ -103,9 +106,9 @@ def extract_data():
                     # print(today_str)
                     continue
     except IOError:
-        exit_fileMsg()
+        exit_fileMsg(dir_path)
     return tutor_names,time,tutor_email,tutees,dates
-reName = input('Please type r if you want to auto rename the file. Type any character otherwise.\n')
+reName = input('\nPlease type r if you want to auto rename the file. Type any character otherwise.\n')
 if(reName.lower() == 'r' ):
     rename()
 tutors_list,time_list,tutors_email,tutees,dates = extract_data()
@@ -117,7 +120,7 @@ special_Appointments = []
 Special = False
 def custom_sessions():
     global time_list, Special
-    val = input("Please Type:\n 1 to add a session to the list\n 2 to to add a session(s) to be sent in separate mail\n 3 to proceed\n")
+    val = input("\nPlease Type:\n 1 to add a session to the list\n 2 to to add a session(s) to be sent in separate mail\n 3 to proceed\n")
     while(val != '3'):
         if val == '1' or val == '2':
             #dbg(0)
@@ -134,7 +137,7 @@ def custom_sessions():
                 time_list.append(Stime)
                 dates.append(Sdate)
                 tutors_email.append(Smail)
-                print(time_list)
+                #print(time_list)
             elif val == '2':
                 # separate email
                 Special = True
@@ -143,7 +146,7 @@ def custom_sessions():
                 app = {'tutor': Tutor_name , 'Room': Sroom , 'time': Stime, 'start index': 0 ,'date': Sdate , 'tutee': Tutee_name}
                 special_Appointments.append(app)
                 print(special_Appointments)
-        val = input("Please Type:\n 1 to add a session to the list\n 2 to to add a session(s) to be sent in separate mail\n 3 to proceed\n")
+        val = input("\nPlease Type:\n 1 to add a session to the list\n 2 to to add a session(s) to be sent in separate mail\n 3 to proceed\n")
 
 #TODO
 #def generate_date(day,month,year): 
@@ -158,41 +161,32 @@ def find_index(tutor): #called inside
 
 custom_sessions()
 #print(special_Appointments)
-Check = True
-def Check_decision():
-    global Check
-    while True:
-        Check_txt = input("Please type:\n 1 if you want to generate mock email.\n 0 if you want to proceed the email directly.\n")
-        if Check_txt == '1':
-            Check = True
-            return
-        elif Check_txt == '0':
-            Check = False
-            return
+
         
 
 
 def remove_sessions():
     while True:
-        val = input("Please type\n 1 to remove a session from the list.\n 0 to proceed.\n")
+        val = input("\nPlease type\n 1 to remove a session from the list.\n 0 to proceed.\n")
         if val == '1':
             break
         elif val == '0':
             return
     while True:
-        i = input("Please Type the number of session you want to delete or type x to cancel\n")
+        print_Appointments(Appointments)
+        i = input("\nPlease Type the number of the session you want to delete or type x to cancel\n")
         i = i.lower()
         if i == 'x':
             break
-        if (int(i) - 1) < len(Appointments):
+        elif i.isalpha():
+            print(f"\nYou entered invalid character.\n")
+        elif (int(i) - 1) < len(Appointments):
             i = int(i)
             i= i-1
             del Appointments[i]
-            remove_sessions()
-        elif i == '1':
-            return
-        else:
-            remove_sessions()
+            print("Session is deleted successfully.\n")
+        elif (int(i) - 1) >= len(Appointments):
+            print(f"\nSession {i} doesn't exist.\n")
 
 
 
@@ -312,7 +306,6 @@ def make_table(to, Special):
 
 sort_Appointments()
 remove_sessions()
-Check_decision()
 
 def send_email_tutors(Check):
     global Appointments, special_Appointments
@@ -371,8 +364,23 @@ def send_email_lib(Check):
     server.sendmail(sender_email, to, Msg.as_string())
     server.quit()
 
-send_email_tutors(Check)
-send_email_lib(Check)
+def Check_decision():
+    Check = True
+    while True:
+        Check_txt = input("\nPlease type:\n 0 to display the appointments in the program.\n 1 to generate mock email.\n 2 to send the email.\n")
+        if Check_txt == '0':
+            print_Appointments(Appointments)
+        elif Check_txt == '1':
+            send_email_tutors(True)
+            send_email_lib(True)
+            print("\nMock email is generated Successfully!\n")
+        elif Check_txt == '2':
+            send_email_tutors(False)
+            send_email_lib(False)
+            print("\nEmail is sent Successfully! Have a good day.\n")
+            return
+Check_decision()
+
 
 #TODO: enable user to add or remove a session after the HTML file is generated.
 #TODO: the program stores the added sessions in a text file so that if the user checks the email format he should not reenter the added sessions.

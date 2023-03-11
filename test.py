@@ -8,4 +8,4 @@ def remove():
         print('File does not exist')
     print('hello')
 
-remove()
+print(ascii('k'))
