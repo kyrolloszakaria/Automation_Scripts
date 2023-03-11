@@ -16,13 +16,38 @@ import re
 # email.mime takes the generated HTML code and render it.
 #print(Check)
 #Check = True
+def filter_lists():
+    # Use the global keyword to use the global variables within the function.
+    global tutors_list, time_list, tutors_email, tutees, dates
+    
+    # Create a list of tuples using the global lists.
+    filtered_lists = zip(tutors_list, time_list, tutors_email, tutees, dates)
+    # Filter the tuples using a list comprehension, keeping only the tuples whose elements have non-empty strings or non-None values.
+    filtered_lists = [lst for lst in filtered_lists if all(val.strip() for val in lst)]
+    
+    # Unzip the filtered tuples to get the filtered global lists.
+    tutors_list, time_list, tutors_email, tutees, dates = zip(*filtered_lists)
+
+    # Return them back to lists.
+    tutors_list = list(tutors_list)
+    time_list = list(time_list)
+    tutors_email = list(tutors_email)
+    tutees = list(tutees)
+    dates = list(dates)
+
+    # Check if all the filtered lists have the same length, if not, exit the program with an error message.
+    if not all(len(lst) == len(tutors_list) for lst in [time_list, tutors_email, tutees, dates]):
+        exit_fileMsg('any', 'None error')
+
+
+
 def input_time(val):
     isCorrect = False
     while isCorrect == False:
         try:
             isCorrect = True
-            if(val == 2):
-                Stime = input("\nPlease enter time as 1:30pm (please use the exact same format): ")
+            if(val == '2'):
+                Stime = input("\nPlease enter time as 01:30 PM (please use the exact same format): ")
             else:
                 Stime = input("\nPlease enter time as 1:30pm (please use the exact same format): ")
             time_obj = datetime.strptime(Stime, "%I:%M%p")
@@ -34,8 +59,12 @@ def input_time(val):
                 print(f'WRONG FORMAT.\n')
     return Stime
 
-def exit_fileMsg(dir_path):
-    print(f'\nPlease make sure:\n1. to download the report.\n2. that its name starts with \"admin_download_meetings_detailed_AUC Peer Tutoring\"\n3. The report is in the correct path: {dir_path}')
+def exit_fileMsg(dir_path, error):
+    if error == "None error":
+        print("\nThis file has one or more empty cell. Please replace it with a correct file and try again.\n")
+    else:
+        print(f'\nPlease make sure:\n1. to download the report.\n2. that its name starts with \"admin_download_meetings_detailed_AUC Peer Tutoring\"\n3. The report is in the correct path: {dir_path}')
+        print('You can try again later.\n')
     input("\nPlease enter any character to close the program\n")
     exit()
 #dir_path = "C:\\Users\\kero6\\Desktop"
@@ -67,7 +96,7 @@ def rename():
             os.rename(os.path.join(dir_path, file_name), os.path.join(dir_path, new_name))
             return
     if exist == False:
-        exit_fileMsg(dir_path)
+        exit_fileMsg(dir_path,'file')
 
 def dbg(i):
     print(f"here {i}")
@@ -106,20 +135,22 @@ def extract_data():
                     # print(today_str)
                     continue
     except IOError:
-        exit_fileMsg(dir_path)
+        exit_fileMsg(dir_path,'file')
     return tutor_names,time,tutor_email,tutees,dates
 reName = input('\nPlease type r if you want to auto rename the file. Type any character otherwise.\n')
 if(reName.lower() == 'r' ):
     rename()
 tutors_list,time_list,tutors_email,tutees,dates = extract_data()
+filter_lists()
 # print(tutors_list)
 # print(time_list)
 # print(tutors_email)
 # print(dates)
 special_Appointments = []
 Special = False
+Separate = False
 def custom_sessions():
-    global time_list, Special
+    global time_list, Special, Separate
     val = input("\nPlease Type:\n 1 to add a session to the list\n 2 to to add a session(s) to be sent in separate mail\n 3 to proceed\n")
     while(val != '3'):
         if val == '1' or val == '2':
@@ -140,12 +171,13 @@ def custom_sessions():
                 #print(time_list)
             elif val == '2':
                 # separate email
+                Separate = True
                 Special = True
                 Stime = input_time(val)
                 Sroom = input("Please enter the room: ")
                 app = {'tutor': Tutor_name , 'Room': Sroom , 'time': Stime, 'start index': 0 ,'date': Sdate , 'tutee': Tutee_name}
                 special_Appointments.append(app)
-                print(special_Appointments)
+                #print(special_Appointments)
         val = input("\nPlease Type:\n 1 to add a session to the list\n 2 to to add a session(s) to be sent in separate mail\n 3 to proceed\n")
 
 #TODO
@@ -166,6 +198,14 @@ custom_sessions()
 
 
 def remove_sessions():
+    global Separate
+    # print(Separate)
+    Apps = special_Appointments if Separate else Appointments
+    # if Separate == True:
+    #     dbg('here')
+    #     Apps = special_Appointments 
+    # else:
+    #     Apps = Appointments
     while True:
         val = input("\nPlease type\n 1 to remove a session from the list.\n 0 to proceed.\n")
         if val == '1':
@@ -173,27 +213,31 @@ def remove_sessions():
         elif val == '0':
             return
     while True:
-        print_Appointments(Appointments)
+        #print(special_Appointments)
+        print_Appointments(Apps)
         i = input("\nPlease Type the number of the session you want to delete or type x to cancel\n")
         i = i.lower()
         if i == 'x':
             break
         elif i.isalpha():
             print(f"\nYou entered invalid character.\n")
-        elif (int(i) - 1) < len(Appointments):
+        elif (int(i) - 1) < len(Apps) and int(i) > 0:
             i = int(i)
             i= i-1
-            del Appointments[i]
-            print("Session is deleted successfully.\n")
-        elif (int(i) - 1) >= len(Appointments):
+            del Apps[i]
+            i += 1
+            print(f"Session {i} is deleted successfully.\n")
+        elif (int(i) - 1) >= len(Apps) or int(i) <= 0:
             print(f"\nSession {i} doesn't exist.\n")
 
 
 
 def convert_time():
     time_num = []
+    print(time_list)
     for time_string in time_list:
         # Convert the time string to a datetime object
+        #print(time_string)
         time_obj = datetime.strptime(time_string, "%I:%M%p")
         # Extract the hour and minute as integers
         # time is converted in 24-hour format 
@@ -207,6 +251,9 @@ def convert_time():
 
 def making_schedule(): #using the direct lists
     time_num = convert_time()
+    #print(tutors_list)
+    #print(time_num)
+    #print(tutees)
     tutors_schedule = [{"name": k, "time": v, "Tutee": z, "date": x} for k, v, z, x in zip(tutors_list, time_num, tutees, dates)]
     return tutors_schedule
 
@@ -269,10 +316,10 @@ def pick_tutors():
                 tutors_schedule.remove(Tutor)
 
 
-def print_Appointments(Appointments):
+def print_Appointments(Apps):
     print("Appointments: ")
     i = 1
-    for app in Appointments:
+    for app in Apps:
         print(f"{i}- tutor: {app['tutor']}, tutee: {app['tutee']}, time: {app['time']}")
         i = i+1
 
@@ -365,11 +412,13 @@ def send_email_lib(Check):
     server.quit()
 
 def Check_decision():
+    global Separate,special_Appointments,Appointments
     Check = True
     while True:
-        Check_txt = input("\nPlease type:\n 0 to display the appointments in the program.\n 1 to generate mock email.\n 2 to send the email.\n")
+        Check_txt = input("\nPlease type:\n 0 to display the appointments in the program.\n 1 to generate mock email.\n 2 to send the email.\n x to close.\n")
         if Check_txt == '0':
-            print_Appointments(Appointments)
+            Apps = special_Appointments if Separate else Appointments
+            print_Appointments(Apps)
         elif Check_txt == '1':
             send_email_tutors(True)
             send_email_lib(True)
@@ -379,6 +428,8 @@ def Check_decision():
             send_email_lib(False)
             print("\nEmail is sent Successfully! Have a good day.\n")
             return
+        elif Check_txt == 'x':
+            exit('Have a good day!')
 Check_decision()
 
 
