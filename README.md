@@ -56,18 +56,18 @@ These instructions will get you a copy of the project up and running on your loc
 
 ### Prerequisites
 
-1- install python 
-2- turn off 'manage app excution alliases' from your settings.
-3- Allow less secure apps in you email settings.
+1- install python <br />
+2- turn off 'manage app excution alliases' from your settings.<br />
+3- Allow less secure apps in you email settings.<br />
 
 
 
 ### Installing
 
-1- Clone this repo into your local Machine.
-2- Install all dependencies required in Mail_Auto.py
-3- create private.py file with username and password field to store your credentials.
-4- Have fun!
+1- Clone this repo into your local Machine.<br />
+2- Install all dependencies required in Mail_Auto.py<br />
+3- create private.py file with username and password field to store your credentials.<br />
+4- Have fun!<br />
 
 
 
