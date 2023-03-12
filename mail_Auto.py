@@ -67,9 +67,10 @@ def exit_fileMsg(dir_path, error):
         print('You can try again later.\n')
     input("\nPlease enter any character to close the program\n")
     exit()
-#dir_path = "C:\\Users\\kero6\\Desktop"
-dir_path = "D:\\mail_automation\\Automation_Scripts"
-new_name = 'daily report.csv'
+dir_path = "C:\\Users\\kero6\\Desktop"
+new_name = 'daily report big.csv'
+#dir_path = "D:\\mail_automation\\Automation_Scripts"
+#new_name = 'daily report.csv'
 def rename():
     ## Delete the old file first:
     # file path
@@ -119,7 +120,7 @@ def extract_data():
             tomorrow_str = tomorrow.strftime("%d-%b-%y")
             tomorrow_str_space = tomorrow.strftime("%d %b %y")
             for row in reader:
-                #if row["Session Date"] == today_str or row["Session Date"] == today_str_space:
+                if row["Session Date"] == today_str or row["Session Date"] == today_str_space:
                     #print(row["Session Date"])
                     #print(today_str_space)
                     first_name = row["Tutor First Name"] if "Tutor First Name" in row else "N/A"
@@ -130,7 +131,7 @@ def extract_data():
                     tutor_email.append(row["Tutor Email"])
                     tutees.append(row["Tutee Name"])
                     dates.append(row["Session Date"])
-                #else:
+                else:
                     # print(row["Session Date"])
                     # print(today_str)
                     continue
@@ -234,7 +235,7 @@ def remove_sessions():
 
 def convert_time():
     time_num = []
-    print(time_list)
+    #print(time_list)
     for time_string in time_list:
         # Convert the time string to a datetime object
         #print(time_string)
@@ -427,7 +428,8 @@ def Check_decision():
             send_email_tutors(False)
             send_email_lib(False)
             print("\nEmail is sent Successfully! Have a good day.\n")
-            return
+            z = input("Press any button to close the Program.\n")
+            exit()
         elif Check_txt == 'x':
             exit('Have a good day!')
 Check_decision()
